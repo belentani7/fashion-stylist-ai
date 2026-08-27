@@ -1,0 +1,12 @@
+@media print {
+  body { background:#fff !important; color:#14212b !important; }
+  .pro-topbar,.pro-hero,.privacy-notice,.node-section:not(.proposal-section),.references-workbench,.assistant-workbench { display:none !important; }
+  .pro-main { width:100% !important; padding:0 !important; }
+  .proposal-section { display:block !important; border:0 !important; padding:0 !important; }
+  .proposal-section .node-heading { margin:0 0 20px !important; }
+  .proposal-section .node-heading h2,.comparison-card h3 { color:#14212b !important; }
+  .comparison-grid { grid-template-columns:repeat(3,1fr) !important; }
+  .comparison-card,.comparison-empty { border-color:#c9d6d6 !important; background:#f8fbfb !important; box-shadow:none !important; break-inside:avoid; }
+  .comparison-card p,.comparison-card div p,.proposal-intro { color:#52656c !important; }
+  .proposal-footer { display:none !important; }
+}

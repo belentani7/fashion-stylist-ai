@@ -1,0 +1,17 @@
+{
+  "name": "Fashion Stylist AI",
+  "short_name": "Stylist AI",
+  "description": "Un estudio personal para componer estilo con intención.",
+  "start_url": "/studio",
+  "display": "standalone",
+  "background_color": "#080d1a",
+  "theme_color": "#080d1a",
+  "icons": [
+    {
+      "src": "/manus-storage/fashion-stylist-mark_524798e5.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

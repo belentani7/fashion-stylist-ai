@@ -1,0 +1,71 @@
+# Tareas de implementación
+
+- [x] Traducir la organización aportada a una estructura proporcional para un landing estático, sin incorporar la arquitectura empresarial ajena al alcance.
+- [x] Integrar Gestalt, armonía, nichos de estilo y arquetipos como módulos de la narrativa de producto.
+- [x] Construir las superficies de cristal grueso, los recursos visuales y las entradas orquestadas con GSAP.
+- [x] Validar contraste, respuesta móvil, animación reducida y las interacciones de muestra.
+- [x] Guardar la versión final y presentar el acceso al landing.
+- [x] Conservar el landing existente como experiencia web independiente y preparar la ampliación móvil de forma aditiva.
+- [x] Revisar la estructura y las capacidades del repositorio remoto antes de definir qué componentes se reutilizan.
+- [x] Revisar la estructura del repositorio público correcto `belentani7/fashion-stylist-ai` y vincularlo de forma no destructiva.
+- [x] Preparar la experiencia web para instalación en pantalla de inicio de Android e iOS como aplicación web independiente.
+- [x] Crear la base móvil para Android e iOS con los flujos prioritarios de estilismo, armario y conversación.
+- [x] Inicializar un proyecto móvil Expo paralelo para Android e iOS, manteniendo este landing como proyecto web independiente.
+- [x] Validar la app móvil y documentar los requisitos de firma y distribución para Android e iOS.
+- [x] Traducir el prompt de auditoría al contexto real de Natalia, separando controles aplicables de infraestructura no necesaria.
+- [x] Añadir controles de privacidad, consentimiento y explicación de datos al Studio de Natalia.
+- [x] Aplicar ajustes proporcionados de accesibilidad, transparencia reducida y protección de entradas en la interfaz.
+- [x] Documentar el estado de preparación real y los requisitos que siguen fuera del alcance antes de declarar producción.
+- [x] Migrar los campos del Studio a los componentes accesibles con protección IME, foco y estados de error.
+- [x] Añadir validación visible en cliente y verificar teclado, entrada compuesta y transparencia reducida.
+- [x] Conectar o ajustar explícitamente el flujo conversacional de la base Expo y verificarlo sin simular integración remota.
+- [x] Añadir estados de error por campo con foco y atributos ARIA en el Studio, además del aviso general.
+- [x] Verificar de forma reproducible la navegación por teclado, entrada IME y transparencia reducida antes de cerrar la validación accesible.
+- [x] Extender la asociación de error, foco y atributos ARIA a referencias y creación/edición de looks del Studio.
+- [x] Ejecutar y registrar una verificación reproducible de tabulación, activación por teclado y composición IME en el Studio.
+- [x] Sustituir los diálogos del navegador en la creación manual de looks por campos visibles, navegables y asociados a errores ARIA.
+- [x] Asociar los errores de archivos de prenda y referencia con sus controles de carga mediante mensajes accesibles por campo.
+- [x] Volver a verificar la creación y edición de looks en el recorrido accesible completo.
+- [ ] Verificar con la sesión de Natalia el flujo completo accesible de crear, guardar y editar un look con datos reales autorizados.
+- [x] Identificar recursos públicos de GitHub útiles para el Studio sin incorporar código no revisado ni assets con licencia incompatible.
+- [x] Seleccionar e integrar únicamente recursos que fortalezcan la experiencia de estilismo, accesibilidad o documentación del producto.
+- [x] Preparar un paquete ZIP de entrega con los proyectos web y móvil, documentación, pruebas y el estado de cada artefacto.
+- [x] Ejecutar las verificaciones reproducibles de la web, la base Expo, Android e iOS antes de empaquetar la entrega.
+- [x] Reformular la evidencia móvil para reflejar que se validaron Expo y la estructura nativa, no builds Android/iOS firmados en este entorno.
+- [x] Documentar las credenciales y firmas necesarias para generar un APK firmado y un archivo iOS distribuible sin solicitar ni almacenar sus secretos.
+- [ ] Generar los artefactos móviles de distribución cuando Natalia autorice la sesión Expo/EAS y la firma Apple Developer.
+- [x] Confirmar y documentar el estado final de entrega sin cuenta Expo/EAS ni Apple Developer, sin prometer APK o iOS firmados.
+- [x] Auditar la arquitectura actual, las pantallas y los flujos reales frente al objetivo profesional de Natalia.
+- [x] Definir y documentar el protocolo de tres nodos para datos, decisiones y presentación sin añadir automatización innecesaria.
+- [x] Ampliar el modelo de datos con clientes, contextos, preferencias editables, decisiones, looks y referencias separadas.
+- [x] Implementar el flujo profesional Cliente → Contexto → Armario → Look → Explicación → Presentación.
+- [x] Implementar un constructor y comparador manual de looks que siga funcionando aunque la IA no esté disponible.
+- [x] Ampliar el asistente contextual para que razone sobre datos confirmados, explique decisiones y proponga alternativas sin inventar prendas.
+- [x] Preparar una presentación limpia de propuestas de look para compartir con una clienta.
+- [x] Crear y mantener el prompt maestro ampliado de Natalia con límites de privacidad, evidencia y verificación.
+- [x] Sustituir el texto provisional de looks manuales por edición y guardado de una explicación profesional real.
+- [x] Validar alternativas del asistente contra prendas verificables en vez de aceptar texto libre no comprobado.
+- [x] Crear una presentación independiente para clienta con looks, componentes, ocasión y explicación lista para imprimir.
+- [x] Guardar un nuevo checkpoint final del proyecto web tras los últimos cambios verificados y la regeneración del ZIP.
+- [x] Registrar en la documentación de entrega el acceso web publicado y el SHA-256 del ZIP regenerado.
+- [x] Registrar la suma SHA-256 final en un documento de trazabilidad externo al ZIP inmutable.
+- [x] Añadir selección de idioma para el asistente profesional: español, portugués de Brasil, portugués de Portugal, inglés, francés, italiano y alemán.
+- [x] Adaptar las instrucciones del asistente para responder en el idioma elegido sin inventar prendas ni desplazar el criterio de Natalia.
+- [x] Crear una presencia de asistente sobria, accesible y contextual dentro del Studio.
+- [x] Incorporar voz opcional controlada por la persona usuaria, con reproducción y detención explícitas.
+- [x] Validar el comportamiento multilingüe, la accesibilidad de voz, tipos, pruebas y compilación.
+- [ ] Verificar con sesión autenticada que el asistente devuelve propuestas reales en español, portugués de Brasil y un tercer idioma elegido.
+- [ ] Comprobar sobre una propuesta real la reproducción, reinicio y detención de voz, incluyendo foco accesible y ausencia de persistencia de audio.
+- [x] Definir permisos diferenciados para Natalia, clienta invitada y visitante público sin exponer datos privados.
+- [x] Crear una vista de clienta independiente, de solo lectura, limitada a propuestas que Natalia haya aprobado.
+- [x] Incorporar autorización y consentimiento para impedir que una clienta consulte datos de otra o acceda al espacio profesional.
+- [x] Validar las rutas profesional y de clienta, las pruebas y la documentación de separación de vistas.
+- [ ] Verificar con dos cuentas autorizadas la invitación, consentimiento, aprobación de look y aislamiento de propuestas en `/client`.
+- [x] Añadir una prueba de middleware que rechace una cuenta cliente en los procedimientos profesionales sin crear datos persistentes.
+- [x] Guardar el checkpoint del hito de separación entre Studio de Natalia y portal de clienta, verificado en desarrollo.
+- [ ] Revalidar la separación en la URL pública cuando se resuelva el bloqueo externo de facturación.
+- [x] Documentar que la URL pública está bloqueada por facturación y que la separación se verificó en desarrollo.
+- [x] Auditar el Studio profesional en un viewport móvil y localizar problemas de jerarquía, tactilidad o desbordamiento.
+- [x] Optimizar los tres nodos y el asistente multilingüe para lectura y acciones táctiles en pantallas pequeñas.
+- [x] Verificar el recorrido móvil y actualizar la evidencia de calidad antes de guardar el hito.
+- [x] Añadir una prueba de contrato para preservar los objetivos táctiles y el área segura del Studio móvil.
