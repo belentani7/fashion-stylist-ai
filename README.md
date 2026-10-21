@@ -1,404 +1,63 @@
-# 👗 NATALIA — The Revolutionary AI Fashion Stylist
-
-**Beyond Imagination. Beyond Trends. Beyond Everything.**
-
-> *"Fashion is not something that exists in dresses only. Fashion is in the sky, in the street, fashion has to do with ideas, the way we live, what is happening."*
-
----
-
-## 🌟 What is Natalia?
-
-Natalia is not just a fashion app. It's a **cultural revolution in personal confidence, psychological empowerment, and authentic self-expression**.
-
-We're building a digital companion that understands that every human deserves to feel beautiful, confident, and authentic—not by following trends, but by discovering their true style.
-
-### The Vision
-
-- **500K users in Year 1**
-- **$5M ARR by Year 2**
-- **2M+ users by Year 3**
-- **Change how humanity sees fashion and self-image**
-
-### The Legacy
-
-This repository is dedicated to completing **Natalia Marinho's vision**: democratizing personal styling, celebrating diversity, and proving that confidence is the ultimate accessory.
-
----
-
-## 🚀 Core Features (MVP)
-
-### 1. 🎤 Voice AI Assistant
-- Conversational AI that understands emotional subtext
-- Natural voice responses (ElevenLabs)
-- Context-aware recommendations
-- Learns your preferences over time
-
-### 2. 📷 Real-Time Photo Analysis
-- Claude Vision analyzes your wardrobe
-- Automatic metadata detection
-- Intelligent organization
-- One-tap outfit building
-
-### 3. 🎯 Personalized Recommendations
-- Weather-aware suggestions
-- Occasion-specific styling
-- Psychological color selection
-- Cost-per-wear optimization
-
-### 4. 🛍️ Smart Shopping Assistant
-- "Should I buy this?" analysis
-- Compatibility checking
-- Sustainable fashion advocacy
-- Affiliate transparency
-
-### 5. 👔 Virtual Wardrobe Management
-- Complete digital catalog
-- Smart organization system
-- Usage tracking
-- Style profile building
-
-### 6. 🌍 Community & Social
-- Share outfits with friends
-- Trending looks discovery
-- Follower recommendations
-- Comment & inspire
-
----
-
-## 🏗️ Tech Stack
-
-```
-Frontend:      React 19 + Next.js + TypeScript + Tailwind CSS
-Backend:       Node.js + Supabase (PostgreSQL)
-AI Core:       Claude API 3.5 Sonnet + Claude Vision
-Voice:         ElevenLabs (TTS) + Web Speech API (STT)
-Storage:       Supabase Storage + AWS S3
-Payments:      Stripe
-Hosting:       Vercel (Frontend) + Railway (Backend)
-Database:      PostgreSQL (Supabase)
-ORM:           Prisma
-State:         Zustand
-Data Fetch:    React Query
-Animations:    Framer Motion
-```
-
----
-
-## 📁 Project Structure
-
-```
-fashion-stylist-ai/
-├── apps/
-│   ├── web/                    # Next.js frontend
-│   │   ├── app/
-│   │   │   ├── (auth)/        # Authentication pages
-│   │   │   ├── (app)/         # Main app pages
-│   │   │   └── api/           # API routes
-│   │   ├── components/
-│   │   │   ├── ui/            # Reusable UI components
-│   │   │   ├── features/      # Feature-specific components
-│   │   │   └── layout/        # Layout components
-│   │   ├── hooks/             # Custom React hooks
-│   │   ├── lib/               # Utility functions
-│   │   ├── styles/            # Global styles
-│   │   └── public/            # Static assets
-│   │
-│   └── api/                    # Backend API (Node.js)
-│       ├── src/
-│       │   ├── routes/        # API endpoints
-│       │   ├── services/      # Business logic
-│       │   ├── controllers/   # Request handlers
-│       │   ├── middleware/    # Express middleware
-│       │   ├── models/        # Database models
-│       │   └── utils/         # Helper functions
-│       ├── prisma/            # Prisma schema & migrations
-│       └── tests/
-│
-├── packages/                   # Shared packages
-│   ├── natalia-ai/            # AI/LLM logic
-│   ├── natalia-types/         # TypeScript types
-│   └── natalia-utils/         # Shared utilities
-│
-├── docs/                       # Documentation
-│   ├── ARCHITECTURE.md        # System architecture
-│   ├── API.md                 # API documentation
-│   ├── NATALIA_LEGACY.md      # The vision & values
-│   └── SYSTEM_PROMPT_GODNESS.md  # AI system prompt
-│
-├── .env.example               # Environment variables template
-├── .gitignore
-├── package.json               # Root package.json
-├── tsconfig.json              # TypeScript configuration
-├── README.md                  # This file
-└── CONTRIBUTING.md            # Contribution guidelines
-
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Node.js 18+
-- npm or yarn
-- Supabase account
-- Stripe account
-- Claude API key
-- ElevenLabs API key
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/belentani/fashion-stylist-ai.git
-cd fashion-stylist-ai
-```
-
-2. **Install dependencies**
-```bash
-npm install
-```
-
-3. **Setup environment variables**
-```bash
-cp .env.example .env.local
-```
-
-Then fill in:
-```env
-# Database
-DATABASE_URL=your_supabase_connection_string
-
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
-# AI & LLM
-ANTHROPIC_API_KEY=your_claude_api_key
-
-# Voice
-ELEVENLABS_API_KEY=your_elevenlabs_key
-ELEVENLABS_VOICE_ID=your_voice_id
-
-# Payments
-STRIPE_SECRET_KEY=your_stripe_secret
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=your_stripe_publishable
-
-# App
-NEXTAUTH_SECRET=your_secret
-NEXTAUTH_URL=http://localhost:3000
-```
-
-4. **Setup Supabase**
-```bash
-# Initialize Supabase migrations
-npx supabase migration new init
-
-# Run migrations
-npx supabase db push
-```
-
-5. **Start development server**
-```bash
-npm run dev
-```
-
-6. **Open browser**
-Navigate to `http://localhost:3000`
-
----
-
-## 📚 Core Concepts
-
-### The Natalia Philosophy
-
-Every feature must pass the **Natalia Test**:
-
-✅ Does this empower the user?
-✅ Does this increase confidence?
-✅ Does this reduce shame/anxiety?
-✅ Is this inclusive?
-✅ Is this sustainable?
-✅ Is this honest?
-
-If the answer to any is "no" → **Don't build it.**
-
----
-
-## 🎯 Development Roadmap
-
-### 🔴 Phase 1: Foundation (Weeks 1-4) — IN PROGRESS
-- [ ] Auth system (email + OAuth)
-- [ ] Basic UI framework
-- [ ] Wardrobe upload + Claude Vision
-- [ ] Text-based conversation
-- [ ] Trial/subscription setup
-
-### 🟠 Phase 2: Voice & Intelligence (Weeks 5-8)
-- [ ] Web Speech API integration
-- [ ] ElevenLabs TTS integration
-- [ ] Voice conversation flow
-- [ ] Avatar (2D) introduction
-- [ ] Advanced Claude prompts
-
-### 🟡 Phase 3: Personalization (Weeks 9-12)
-- [ ] Weather API integration
-- [ ] Calendar integration
-- [ ] Style profile refinement
-- [ ] Advanced recommendations
-- [ ] Analytics dashboard
-
-### 🟢 Phase 4: Social & Community (Weeks 13-16)
-- [ ] Social sharing
-- [ ] Community feed
-- [ ] User profiles
-- [ ] Trending looks
-- [ ] Follow system
-
-### 🔵 Phase 5: Shopping Integration (Weeks 17-20)
-- [ ] Shein/ASOS integration
-- [ ] Smart shopping advisor
-- [ ] Price tracking
-- [ ] Wish list
-- [ ] Affiliate system
-
----
-
-## 🔐 Important: Natalia's Core Values
-
-We are committed to:
-
-1. **Radical Kindness** — Never judge, always empower
-2. **Inclusive Beauty** — Every body, every skin tone, every style
-3. **Transparency** — Be honest about affiliate links, data usage
-4. **Sustainability** — Promote wearing what you have
-5. **Privacy** — User data is sacred trust
-6. **Mental Health** — Fashion should make you feel better, not worse
-
----
-
-## 📖 Documentation
-
-- **[NATALIA_LEGACY.md](./NATALIA_LEGACY.md)** — The complete vision and values
-- **[SYSTEM_PROMPT_GODNESS.md](./SYSTEM_PROMPT_GODNESS.md)** — The AI system prompt (THE most important file)
-- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** — Technical architecture details
-- **[API.md](./docs/API.md)** — API documentation
-
----
+# NATALIA — Personal Style Studio
 
-## 🤝 Contributing
+**Tu estilo es tuyo.** Una aplicación real de armario personal y conjuntos, con identidad visual propia, preservando los principios de Natalia: autonomía, inclusión, privacidad y menos compras innecesarias.
 
-We welcome contributions, but **only if they align with Natalia's values**.
+Este es el repositorio original de **Natalia**, independiente de otros productos/personas del ecosistema. Su documentación histórica de visión a cinco años permanece en NATALIA_LEGACY.md y SYSTEM_PROMPT_GODNESS.md; las proyecciones de clientes, ingresos y asociaciones son objetivos hipotéticos, no resultados logrados.
 
-Before contributing:
-1. Read [NATALIA_LEGACY.md](./NATALIA_LEGACY.md)
-2. Read [SYSTEM_PROMPT_GODNESS.md](./SYSTEM_PROMPT_GODNESS.md)
-3. Check [CONTRIBUTING.md](./CONTRIBUTING.md)
+## Producto funcional actual — 2026
 
-Your code is a reflection of Natalia. Make it legendary.
+1. Portada corporativa y navegación a las funciones reales.
+2. Inventario de prendas: crear, categorizar, describir, registrar temporada, color y precio, filtrar y eliminar.
+3. Conjuntos: elegir de 1 a 10 prendas, guardar looks con nombre y ocasión, consultar contenido, editar composición mediante nuevo conjunto y eliminar conjuntos.
+4. Uso real: botón para registrar que llevaste un conjunto; incrementa el historial de sus piezas y calcula coste por uso sin inventar compras.
+5. Propuesta de look por reglas transparentes: usa únicamente tus prendas, categoría, temporada, ocasión y menor número de usos. **No hay conexión a un LLM ni diagnóstico corporal.**
+6. Estadísticas calculadas del estado real: piezas, conjuntos, prendas sin usos anotados, inversión registrada.
+7. Exportación del armario completo a JSON local y restauración confirmada con validación rigurosa (sin enviar el archivo a un servidor).
+8. Página diseñada para móvil, con soporte de teclado y preferencias de movimiento reducido. No usa trackers ni solicita fotos o medidas del cuerpo.
 
----
+**No implementado y no anunciado como activo:** login, cuentas, comunidad, marketplace, IA generativa, análisis de fotos, audio de ElevenLabs, perfiles psicológicos, Stripe, Supabase, AR o recomendaciones meteorológicas. Son extensiones de la visión histórica que necesitan desarrollo, contratos, proveedores y controles antes de su activación. Esta entrega es un producto local-first con funcionalidad real, no la plataforma SaaS completa del roadmap.
 
-## 💬 The System Prompt
+## Instalación
 
-The heart of Natalia lives in **SYSTEM_PROMPT_GODNESS.md**.
+Requiere Node.js 20 o posterior y npm.
 
-This is not just a prompt. It's the embodiment of:
-- Psychological intelligence
-- Inclusive values
-- Sustainable fashion advocacy
-- Radical kindness
-- The complete Natalia vision
+    git clone https://github.com/belentani7/fashion-stylist-ai.git
+    cd fashion-stylist-ai
+    npm install --no-audit --no-fund
+    npm run dev
 
-Every response from our AI should reflect this. If you're integrating Claude, use this prompt as your north star.
+Abre http://localhost:3000. Si alojas en Vercel, el repositorio contiene ahora las rutas Next 15 app/page.tsx y app/layout.tsx que antes faltaban. No presupone un backend ni conecta APIs privadas. La web debe desplegarse y abrirse en navegador para considerarse publicada.
 
----
+## Calidad
 
-## 🎓 Learning Resources
+    npm run test
+    npm run typecheck
+    npm run lint
+    npm run build
 
-### Fashion & Psychology
-- "The Psychology of Fashion" — Carolyn Mair
-- "Fashion: A Very Short Introduction" — Rebecca Arnold
-- Body Image & Self-Esteem research
+La suite comprueba CRUD de armario, referencias de los looks, usos y costes, propuestas basadas únicamente en piezas existentes, validación de copias corruptas e identidad y entrada real Next. La CI exige todas esas condiciones sin ocultar fallos. **Hasta obtener pruebas ejecutadas y un deploy verificado, no declarar la publicación aprobada**.
 
-### AI & LLM
-- Claude API documentation
-- Prompt engineering best practices
-- Voice interaction design
+El repositorio carecía de un proyecto Next utilizable a pesar del archivo package.json histórico. Los paquetes antiguos declaraban integraciones (Stripe, Auth, Supabase, Claude, etc.) que no tenían implementaciones. Se conservaron, como especificación histórica, en docs/legacy-stack-manifest.json. El manifiesto activo ahora incluye únicamente las dependencias realmente utilizadas por la aplicación para reducir conflictos. La entrega todavía requiere fijar un package-lock reproducible tras la instalación en un entorno autorizado.
 
-### Sustainable Fashion
-- Fashion industry impact data
-- Circular economy principles
-- Second-hand fashion revolution
+## Contrato de privacidad
 
----
+Los registros se guardan **únicamente en el localStorage** de este navegador bajo la clave natalia:wardrobe:v1. Sin cuentas ni copias automáticas, los datos se pueden perder al borrar el almacenamiento. La exportación manual JSON incluye nombres, notas, precios y conjuntos introducidos por quien usa la aplicación: debe guardarse en un lugar privado.
 
-## 📊 Metrics We Care About
+El modelo de datos rechaza IDs desconocidos o duplicados, referencias a prendas inexistentes, valores monetarios no finitos o negativos y copias de otro esquema. Importar requiere confirmación. No se obtienen datos biométricos, fotografías ni información de contacto. Los colores se restringen a una paleta segura antes de aplicarse al estilo CSS.
 
-- **User confidence increase** (primary KPI)
-- **DAU/MAU engagement**
-- **Trial-to-paid conversion** (target: 25%)
-- **Sustainability actions taken** (items reused vs purchased)
-- **Community impact** (users helping users)
-- **Mental health improvement** (self-reported)
+## Arquitectura
 
----
+    app/page.tsx             producto, inventario, conjuntos, import/export
+    app/layout.tsx           estructura HTML y SEO
+    app/globals.css          identidad editorial responsive de Natalia
+    lib/wardrobe.ts          dominio y validación de datos sin red
+    tests/wardrobe.test.mjs  regresiones del dominio y producto
+    .github/workflows/ci.yml quality gates
+    ecosistema.html          directorio histórico de otros proyectos (conservado)
+    NATALIA_LEGACY.md        visión histórica específica de Natalia
+    SYSTEM_PROMPT_GODNESS.md arquitectura futura, no IA conectada actualmente
+    docs/legacy-stack-manifest.json   dependencias históricas preservadas
 
-## 🚨 Known Challenges & How We'll Solve Them
+## Diseño y criterio
 
-| Challenge | Our Approach |
-|-----------|--------------|
-| High API costs | Caching, rate limiting, smart batching |
-| AI accuracy | Continuous testing, user feedback loops |
-| User adoption | Influencer partnerships, viral referral |
-| Churn after trial | Focus on emotional connection, not features |
-| Competition | Speed to market, unique voice, community |
-
----
-
-## 📞 Support & Contact
-
-- **Email:** belentani7pedro@gmail.com
-- **GitHub Issues:** For bug reports
-- **Discussions:** For feature ideas
-- **Discord:** Coming soon (community channel)
-
----
-
-## 📜 License
-
-MIT License — See [LICENSE](./LICENSE) for details
-
----
-
-## 🙏 Dedication
-
-This project is dedicated to **Natalia Marinho** and every person who was told they weren't "fashionable enough."
-
-Fashion is not about trends.
-Fashion is freedom.
-Fashion is self-love.
-Fashion is power.
-
-**Let's build a world where everyone has access to a personal stylist who believes in them.**
-
----
-
-## 🌟 The Promise
-
-We are not building a startup.
-We are building a **movement**.
-
-A movement that says:
-- Your body is beautiful
-- Your style matters
-- Your confidence deserves investment
-- Your choices are respected
-
-Welcome to Natalia.
-
-**Now let's be legendary.** ✨
-
----
-
-*"The best style advice? Be yourself. But make it look intentional."* — Natalia's Wisdom
+No se infiere la talla, salud, género, raza o imagen corporal. Las sugerencias no se venden como ciencia ni como asesoramiento psicológico. Las opciones pretenden estimular el uso de prendas existentes, no maximizar consumo. Código de este producto bajo MIT; marcas y material de terceros tienen derechos independientes.
