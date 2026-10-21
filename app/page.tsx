@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore, type FormEvent } from "react";
+import { useMemo, useState, useSyncExternalStore, type FormEvent, type CSSProperties } from "react";
 import {
   STORAGE_KEY, STORAGE_EVENT, EMPTY,
   addItem, addOutfit, removeItem, removeOutfit, wearOutfit,
@@ -195,7 +195,7 @@ export default function NataliaHome() {
                 {listed.length ? (
                   <div className="catalog">{listed.map(piece=>(
                     <article className="garment" key={piece.id}>
-                      <div className="swatch" style={{"--swatch":COLORS[piece.color as Color]||"#88657e"} as React.CSSProperties}><span>{CATEGORY_LABEL[piece.category]}</span></div>
+                      <div className="swatch" style={{"--swatch":COLORS[piece.color as Color]||"#88657e"} as CSSProperties}><span>{CATEGORY_LABEL[piece.category]}</span></div>
                       <h4>{piece.name}</h4>
                       <p className="meta">{piece.color} · {SEASON_LABEL[piece.season]}<br/>{piece.wears} usos · {euro(piece.price)} invertidos</p>
                       {piece.notes && <p className="meta">{piece.notes}</p>}
