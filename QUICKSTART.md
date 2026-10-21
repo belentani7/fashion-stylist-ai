@@ -1,3 +1,30 @@
+# NATALIA — Inicio real de esta rama
+
+La versión original de la guía (conservada íntegra más abajo) adelantaba cuentas, Stripe, Supabase y servicios de IA que aún no estaban implementados. **No necesitas claves, registrarte ni introducir datos personales para probar esta versión.**
+
+```bash
+git clone https://github.com/belentani7/fashion-stylist-ai.git
+cd fashion-stylist-ai
+# La funcionalidad nueva estará disponible al integrar la PR correspondiente:
+npm install --legacy-peer-deps --no-audit --no-fund
+npm run dev
+```
+
+Abre `http://localhost:3000`, añade prendas ficticias, crea combinaciones, comprueba un coste por uso, exporta tu armario y borra los datos. El botón genera combinaciones mediante `POST /api/looks` (curación determinista, **no una llamada a Claude**). Para verificar:
+
+```bash
+npm test
+npm run type-check
+npm run lint
+npm run build
+```
+
+La documentación siguiente es un **plan histórico no implementado**. En concreto, no crees tablas SQL copiando esas instrucciones sin antes revisar identidad, autorizaciones y políticas RLS: incluir solo una política SELECT en `users` no equivale a un sistema de autenticación y privacidad completo. No hay pagos ni perfiles implementados. Tampoco está probado el despliegue; esta PR se mantiene en borrador hasta que sus gates puedan ejecutarse.
+
+---
+
+## Guía original preservada
+
 # 🚀 QUICKSTART — Get Natalia Running in 10 Minutes
 
 ## The Legend is Starting. Let's Go.
