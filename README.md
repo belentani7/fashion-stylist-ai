@@ -1,3 +1,70 @@
+# NATALIA STUDIO — Producto funcional / 2026
+
+**Tu estilo, tu armario, tu criterio.** NATALIA convierte el concepto de moda inclusiva del repositorio original en un primer producto Next.js navegable, con herramientas reales y sin inventar proveedores conectados.
+
+## Estado real de esta versión
+
+| Área | Entregada en esta rama | No disponible todavía |
+|---|---|---|
+| Identidad | Portada original, monograma N, marca rosa-noche, metadatos y responsive | Fotografías oficiales / derechos de marca no comprobados |
+| Armario | Añadir/eliminar prendas, categorías, colores, temporadas, usos y coste | Fotografías, detección visual automática |
+| Combinar | Motor tipado de paletas/temporada/ocasión que utiliza SOLO prendas existentes | LLM, recomendador generativo o prueba virtual AR |
+| API | `POST /api/looks` y `GET /api/looks`, validación Zod y no-store | Base de datos, cuentas y sincronización |
+| Autonomía | Exportar/importar/borrar JSON local, confirmar cambios irreversibles | Pagos, afiliación, compras o comunidad |
+| Pruebas | Contratos de prendas, conjuntos, privacidad, límites y coste por uso | Test E2E de navegador / CI validada |
+
+La interfaz indica explícitamente cuándo una función no dispone de IA generativa, visión, voz o catálogo de compras. **No existe un servicio Supabase, Claude, Stripe o ElevenLabs operativo en esta entrega.** Las descripciones de arquitectura en la documentación histórica de abajo son objetivos del proyecto, no un inventario de componentes ya implantados. Las cifras 500K usuarios y millones de ARR son aspiraciones de la visión original, **no resultados obtenidos ni pronósticos verificados**.
+
+## Funcionalidad que puedes utilizar
+
+La persona añade ropa que ya posee, con nombre genérico, categoría, color, temporada y coste opcional. La aplicación guarda exclusivamente estos datos en su navegador. El motor muestra hasta tres ideas para combinar las prendas y explica las coincidencias de color y clima; nunca evalúa cuerpos ni atribuye sentimientos psicológicos. Puede registrar los usos y calcular `coste / usos` siempre que ambos datos estén disponibles. El armario se exporta/importa mediante JSON con validación estricta.
+
+Al pedir una propuesta, el navegador envía solo la lista de prendas y preferencias a la API propia. **La API no las almacena, y tampoco recopila fotos o medidas.** El navegador mantiene el armario bajo `natalia:wardrobe:v1` en `localStorage`. No se conectan servicios externos desde la función de creación de looks; el operador del servidor de alojamiento tiene obligaciones de privacidad independientes.
+
+## Ejecutar y comprobar
+
+Requiere Node.js 22. Desde el repositorio existente:
+
+```bash
+npm install --legacy-peer-deps --no-audit --no-fund
+npm run dev              # http://localhost:3000
+npm test                 # motor y contratos de producto
+npm run type-check       # TypeScript estricto
+npm run lint             # ESLint + Next
+npm run build            # página + API para producción
+npm run start
+```
+
+Este repositorio todavía **no tiene un lockfile congelado**, por lo que las instalaciones no son totalmente reproducibles. Antes de promocionar a producción se debe generar y verificar un lockfile coherente, ejecutar los gates CI y comprobar el flujo en navegador móvil/desktop. La instalación y las pruebas de CI no deben darse por aprobadas si GitHub Actions falla antes de asignar runner.
+
+## Estructura funcional de esta rama
+
+```text
+app/
+  layout.tsx              marca, SEO y acceso semántico
+  page.tsx                portada + armario + looks + privacidad
+  globals.css             sistema visual completo y responsive
+  icon.svg                monograma N original
+  api/looks/route.ts      API sin persistencia con validación estricta
+lib/styling.ts            dominio puro de prendas, combinación y coste por uso
+tests/styling.test.cjs    regresiones del motor y entradas principales
+.github/workflows/ci.yml gates: test / type / lint / build
+NATALIA_LEGACY.md         canon narrativo original preservado
+SYSTEM_PROMPT_GODNESS.md  visión futura de asistente, sin fingir IA activa
+```
+
+## Principios no negociables
+
+Sin juicio del cuerpo, talla, edad o identidad. Sin inventar testimonios, compradores, suscriptores o ventas. Sin recomendar comprar antes de aprovechar el armario. Sin acceso a fotos, pagos ni secretos. Transparencia sobre límites. Conservación del material histórico del repositorio.
+
+---
+
+## Documentación histórica original (concepto / aspiraciones)
+
+El texto siguiente se conserva íntegro para respetar el proyecto inicial. **Sus referencias a módulos, carpetas, APIs y plataformas de terceros describían un plan, no características probadas del repositorio original.**
+
+---
+
 # 👗 NATALIA — The Revolutionary AI Fashion Stylist
 
 **Beyond Imagination. Beyond Trends. Beyond Everything.**
