@@ -1,0 +1,36 @@
+name: Natalia / product quality
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  product:
+    name: Next 15 / privacy, real wardrobe, typecheck and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install actual Next app dependencies
+        run: npm install --no-audit --no-fund
+      - name: Domain and privacy regressions
+        run: npm run test
+      - name: Strict TypeScript
+        run: npm run typecheck
+      - name: ESLint
+        run: npm run lint
+      - name: Production build
+        run: npm run build
+      - name: Real product routes
+        run: |
+          test -s app/page.tsx
+          test -s app/layout.tsx
+          test -s app/globals.css
+          test -s lib/wardrobe.ts
+          test -s .next/BUILD_ID
