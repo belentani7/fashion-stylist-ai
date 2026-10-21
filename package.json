@@ -10,8 +10,9 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "node --test tests/*.test.cjs",
+    "test:watch": "node --test --watch tests/*.test.cjs",
+    "verify": "npm test && npm run type-check && npm run lint && npm run build"
   },
   "dependencies": {
     "react": "^19.0.0",

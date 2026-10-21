@@ -1,0 +1,35 @@
+name: NATALIA Studio — Release gates
+on:
+  push:
+    branches: [main, "release/**"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    name: Wardrobe / privacy / TypeScript / Next production
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Install existing dependencies
+        run: npm install --legacy-peer-deps --no-audit --no-fund
+      - name: Test real wardrobe domain and safety contract
+        run: npm test
+      - name: Check strict TypeScript and Next pages
+        run: npm run type-check
+      - name: Lint
+        run: npm run lint
+      - name: Compile complete web and backend API routes
+        run: npm run build
+      - name: Confirm build contains usable pages
+        shell: bash
+        run: |
+          test -d .next
+          test -s app/page.tsx
+          test -s app/api/looks/route.ts
