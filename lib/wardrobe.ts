@@ -102,6 +102,15 @@ export function addItem(state: WardrobeState, item: WardrobeItem): WardrobeState
   return validateWardrobe({ ...state, items: [...state.items, item] });
 }
 
+/** Edit descriptive properties while preserving identity and wear history. */
+export function updateItem(state: WardrobeState, edited: WardrobeItem): WardrobeState {
+  const current = state.items.find(item => item.id === edited.id);
+  if (!current) throw new Error("Wardrobe item not found");
+  return validateWardrobe({ ...state, items: state.items.map(item => item.id === edited.id
+    ? { ...edited, id: current.id, wears: current.wears, addedAt: current.addedAt }
+    : item) });
+}
+
 export function removeItem(state: WardrobeState, id: string): WardrobeState {
   return validateWardrobe({ ...state, items: state.items.filter(item => item.id !== id),
     outfits: state.outfits.map(outfit => ({ ...outfit,
