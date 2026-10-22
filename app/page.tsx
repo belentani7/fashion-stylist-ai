@@ -102,7 +102,8 @@ export default function NataliaHome() {
     setEditingId(piece.id);
     setItem({ name: piece.name, category: piece.category, color: piece.color as Color,
       season: piece.season, price: String(piece.price), notes: piece.notes });
-    document.getElementById("wardrobe-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    document.getElementById("wardrobe-heading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
     document.getElementById("name")?.focus({ preventScroll: true });
   }
 
