@@ -3,7 +3,7 @@
 import { useMemo, useState, useSyncExternalStore, type FormEvent, type CSSProperties } from "react";
 import {
   STORAGE_KEY, STORAGE_EVENT, EMPTY,
-  addItem, addOutfit, removeItem, removeOutfit, wearOutfit,
+  addItem, updateItem, addOutfit, removeItem, removeOutfit, wearOutfit,
   totalInvestment, costPerWear, parseLocalWardrobe,
   validateWardrobe, suggestOutfit,
   type WardrobeState, type Category, type Season, type Occasion,
@@ -49,6 +49,7 @@ export default function NataliaHome() {
   const raw = useSyncExternalStore(subscribe, snapshot, () => JSON.stringify(EMPTY));
   const wardrobe = useMemo(() => parseLocalWardrobe(raw), [raw]);
   const [item, setItem] = useState<ItemDraft>(EMPTY_DRAFT);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [lookName, setLookName] = useState("");
   const [occasion, setOccasion] = useState<Occasion>("daily");
@@ -81,18 +82,41 @@ export default function NataliaHome() {
       setMessage("Revisa el nombre y el importe: deben ser válidos.");
       return;
     }
-    const result = addItem(wardrobe, {
-      id: crypto.randomUUID(), name, category: item.category,
+    const drafted = {
+      id: editingId ?? crypto.randomUUID(), name, category: item.category,
       color: item.color, season: item.season, price,
       notes: item.notes.trim(), wears: 0, addedAt: new Date().toISOString(),
-    });
-    if (persist(result, "Pieza añadida al armario privado.")) setItem(EMPTY_DRAFT);
+    };
+    try {
+      const result = editingId ? updateItem(wardrobe, drafted) : addItem(wardrobe, drafted);
+      if (persist(result, editingId ? "Cambios guardados sin perder el historial de usos." : "Pieza añadida al armario privado.")) {
+        setItem(EMPTY_DRAFT);
+        setEditingId(null);
+      }
+    } catch {
+      setMessage("No se pudo guardar la prenda. Revisa sus datos e inténtalo de nuevo.");
+    }
+  }
+
+  function editItem(piece: WardrobeState["items"][number]) {
+    setEditingId(piece.id);
+    setItem({ name: piece.name, category: piece.category, color: piece.color as Color,
+      season: piece.season, price: String(piece.price), notes: piece.notes });
+    document.getElementById("wardrobe-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    document.getElementById("name")?.focus({ preventScroll: true });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setItem(EMPTY_DRAFT);
+    setMessage("Edición cancelada. No se modificó el armario.");
   }
 
   function dropItem(id: string, name: string) {
     if (!window.confirm(`¿Eliminar «${name}»? Se quitará también de los conjuntos donde aparezca.`)) return;
     if (persist(removeItem(wardrobe, id), "Pieza eliminada.")) {
       setSelected(previous => previous.filter(x => x !== id));
+      if (editingId === id) cancelEdit();
     }
   }
 
@@ -175,7 +199,7 @@ export default function NataliaHome() {
             <div className="heading"><div><p className="eyebrow">01 / TU UNIVERSO</p><h2 id="wardrobe-heading">Armario, no algoritmo.</h2></div><p>Construye un inventario sin subir fotografías ni aceptar recomendaciones sobre tu cuerpo. Toda la información procede de lo que decides registrar.</p></div>
             <div className="workspace">
               <form className="panel" onSubmit={createItem}>
-                <h3>Añadir una pieza</h3><p>Cada prenda tiene historia. Empieza con lo que realmente llevas.</p>
+                <h3>{editingId ? "Editar una pieza" : "Añadir una pieza"}</h3><p>{editingId ? "Actualiza su descripción sin borrar las veces que la has usado." : "Cada prenda tiene historia. Empieza con lo que realmente llevas."}</p>
                 <div className="field"><label htmlFor="name">Nombre de la prenda</label><input id="name" required minLength={2} maxLength={90} placeholder="Ej. Chaqueta negra vintage" value={item.name} onChange={e => setItem({ ...item, name: e.target.value })}/></div>
                 <div className="field-grid">
                   <div className="field"><label htmlFor="category">Categoría</label><select id="category" value={item.category} onChange={e => setItem({...item,category:e.target.value as Category})}>{Object.entries(CATEGORY_LABEL).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
@@ -186,7 +210,7 @@ export default function NataliaHome() {
                   <div className="field"><label htmlFor="price">Precio de compra (€)</label><input id="price" type="number" min="0" max="1000000" step="0.01" value={item.price} placeholder="0,00" onChange={e=>setItem({...item,price:e.target.value})}/></div>
                 </div>
                 <div className="field"><label htmlFor="notes">Una nota (opcional)</label><textarea id="notes" maxLength={360} value={item.notes} onChange={e=>setItem({...item,notes:e.target.value})} placeholder="Por qué te gusta, con qué te hace sentir bien…"/></div>
-                <button className="btn primary" type="submit">Guardar prenda +</button>
+                <div className="actions"><button className="btn primary" type="submit">{editingId ? "Guardar cambios ✓" : "Guardar prenda +"}</button>{editingId && <button className="btn" type="button" onClick={cancelEdit}>Cancelar edición</button>}</div>
               </form>
               <div className="panel">
                 <div className="heading" style={{marginBottom:18}}><div><h3>Tu colección</h3><p>Tu estilo no requiere un tamaño ni una forma prescrita.</p></div>
@@ -199,7 +223,7 @@ export default function NataliaHome() {
                       <h4>{piece.name}</h4>
                       <p className="meta">{piece.color} · {SEASON_LABEL[piece.season]}<br/>{piece.wears} usos · {euro(piece.price)} invertidos</p>
                       {piece.notes && <p className="meta">{piece.notes}</p>}
-                      <div className="garment-foot"><span className="meta">{costPerWear(piece) === null ? "Coste/uso pendiente" : euro(costPerWear(piece)!)+"/uso"}</span><button className="small-action" type="button" onClick={()=>dropItem(piece.id,piece.name)} aria-label={`Eliminar ${piece.name}`}>Eliminar</button></div>
+                      <div className="garment-foot"><span className="meta">{costPerWear(piece) === null ? "Coste/uso pendiente" : euro(costPerWear(piece)!)+"/uso"}</span><div><button className="small-action" type="button" onClick={()=>editItem(piece)} aria-label={`Editar ${piece.name}`}>Editar</button><button className="small-action" type="button" onClick={()=>dropItem(piece.id,piece.name)} aria-label={`Eliminar ${piece.name}`}>Eliminar</button></div></div>
                     </article>
                   ))}</div>
                 ) : <div className="empty">{wardrobe.items.length ? "No hay prendas de esta categoría." : "Tu armario comienza vacío. Añade una pieza real y empieza a construir tu historia de estilo."}</div>}
