@@ -131,3 +131,9 @@ test("the wardrobe editor exposes real edit and cancel controls", () => {
   assert.match(app, /onClick=\{cancelEdit\}/);
   assert.match(app, /onClick=\{\(\)=>editItem\(piece\)\}/);
 });
+
+test("editor respects reduced-motion preference before moving focus", () => {
+  const app = readFileSync(resolve(root, "app/page.tsx"), "utf8");
+  assert.match(app, /prefers-reduced-motion: reduce/);
+  assert.match(app, /behavior: reducedMotion \? "auto" : "smooth"/);
+});
