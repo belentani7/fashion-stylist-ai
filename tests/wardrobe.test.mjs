@@ -101,3 +101,33 @@ test("usable Next 15 entrypoints and an independent Natalia identity exist", () 
   const css = readFileSync(resolve(root,"app/globals.css"),"utf8");
   assert.doesNotMatch(css, /fonts\.googleapis\.com/);
 });
+
+
+test("editing a garment updates attributes without losing wear history or outfit references", () => {
+  let state = model.addItem(blank(), piece("my-unique-id", "top", { wears: 7, price: 50 }));
+  state = model.addOutfit(state, { id: "saved-look", name: "Original outfit",
+    occasion: "daily", itemIds: ["my-unique-id"], addedAt: date });
+  const edited = model.updateItem(state, { ...state.items[0], name: "Chaqueta renovada",
+    category: "outerwear", price: 100, wears: 0, addedAt: "2020-01-01T00:00:00.000Z" });
+  assert.equal(edited.items[0].name, "Chaqueta renovada");
+  assert.equal(edited.items[0].wears, 7);
+  assert.equal(edited.items[0].addedAt, date);
+  assert.equal(edited.outfits[0].itemIds[0], "my-unique-id");
+  assert.equal(model.costPerWear(edited.items[0]), 14.29);
+  assert.equal(state.items[0].name, "Mi prenda my-unique-id");
+});
+
+test("editing cannot create a missing garment or bypass validation", () => {
+  assert.throws(() => model.updateItem(blank(), piece("unknown")), /not found/);
+  const state = model.addItem(blank(), piece("jacket"));
+  assert.throws(() => model.updateItem(state, { ...state.items[0], price: -5 }), /validation/);
+  assert.equal(state.items[0].price, 80);
+});
+
+test("the wardrobe editor exposes real edit and cancel controls", () => {
+  const app = readFileSync(resolve(root, "app/page.tsx"), "utf8");
+  assert.match(app, /function editItem\(piece:/);
+  assert.match(app, /updateItem\(wardrobe, drafted\)/);
+  assert.match(app, /onClick=\{cancelEdit\}/);
+  assert.match(app, /onClick=\{\(\)=>editItem\(piece\)\}/);
+});
