@@ -2,9 +2,9 @@
 
 import { useMemo, useState, useSyncExternalStore, type FormEvent, type CSSProperties } from "react";
 import {
-  STORAGE_KEY, STORAGE_EVENT, EMPTY,
-  addItem, addOutfit, removeItem, removeOutfit, wearOutfit,
-  totalInvestment, costPerWear, parseLocalWardrobe,
+  STORAGE_KEY, STORAGE_EVENT, STORAGE_UNAVAILABLE,
+  addItem, updateItem, addOutfit, removeItem, removeOutfit, wearOutfit,
+  totalInvestment, costPerWear, inspectLocalWardrobe,
   validateWardrobe, suggestOutfit,
   type WardrobeState, type Category, type Season, type Occasion,
 } from "@/lib/wardrobe";
@@ -32,23 +32,25 @@ function subscribe(notify: () => void) {
     window.removeEventListener(STORAGE_EVENT, notify);
   };
 }
-function snapshot() {
-  try { return localStorage.getItem(STORAGE_KEY) ?? JSON.stringify(EMPTY); }
-  catch { return JSON.stringify(EMPTY); }
+function snapshot(): string | null | typeof STORAGE_UNAVAILABLE {
+  try { return localStorage.getItem(STORAGE_KEY); }
+  catch { return STORAGE_UNAVAILABLE; }
 }
 function euro(value: number) {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value);
 }
-function downloaded(contents: string, filename: string) {
-  const url = URL.createObjectURL(new Blob([contents], { type: "application/json;charset=utf-8" }));
+function downloaded(contents: string, filename: string, mime = "application/json;charset=utf-8") {
+  const url = URL.createObjectURL(new Blob([contents], { type: mime }));
   const link = document.createElement("a"); link.href = url; link.download = filename; link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function NataliaHome() {
-  const raw = useSyncExternalStore(subscribe, snapshot, () => JSON.stringify(EMPTY));
-  const wardrobe = useMemo(() => parseLocalWardrobe(raw), [raw]);
+  const raw = useSyncExternalStore(subscribe, snapshot, () => null);
+  const load = useMemo(() => inspectLocalWardrobe(raw), [raw]);
+  const wardrobe = load.state;
   const [item, setItem] = useState<ItemDraft>(EMPTY_DRAFT);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
   const [lookName, setLookName] = useState("");
   const [occasion, setOccasion] = useState<Occasion>("daily");
@@ -59,8 +61,23 @@ export default function NataliaHome() {
   const listed = wardrobe.items.filter(x => filter === "all" || x.category === filter);
   const unused = wardrobe.items.filter(x => x.wears === 0).length;
 
-  function persist(next: WardrobeState, confirmation: string) {
+  function persist(next: WardrobeState, confirmation: string, allowConfirmedRestore = false) {
+    if (load.status === "invalid" && !allowConfirmedRestore) {
+      setMessage("Guardado detenido: hay datos locales dañados. Descarga el original o restaura una copia válida.");
+      return false;
+    }
+    if (load.status === "unavailable") {
+      setStorageError(true);
+      setMessage("No se puede leer el almacenamiento local. No se ha sobrescrito ningún dato.");
+      return false;
+    }
     try {
+      // A second tab may have changed the wardrobe since this component rendered.
+      // Refuse stale writes instead of overwriting those changes.
+      if (localStorage.getItem(STORAGE_KEY) !== raw) {
+        setMessage("El armario ha cambiado en otra pestaña. Revisa los datos antes de guardar de nuevo.");
+        return false;
+      }
       const valid = validateWardrobe(next);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
       window.dispatchEvent(new Event(STORAGE_EVENT));
@@ -81,18 +98,42 @@ export default function NataliaHome() {
       setMessage("Revisa el nombre y el importe: deben ser válidos.");
       return;
     }
-    const result = addItem(wardrobe, {
-      id: crypto.randomUUID(), name, category: item.category,
+    const drafted = {
+      id: editingId ?? crypto.randomUUID(), name, category: item.category,
       color: item.color, season: item.season, price,
       notes: item.notes.trim(), wears: 0, addedAt: new Date().toISOString(),
-    });
-    if (persist(result, "Pieza añadida al armario privado.")) setItem(EMPTY_DRAFT);
+    };
+    try {
+      const result = editingId ? updateItem(wardrobe, drafted) : addItem(wardrobe, drafted);
+      if (persist(result, editingId ? "Cambios guardados sin perder el historial de usos." : "Pieza añadida al armario privado.")) {
+        setItem(EMPTY_DRAFT);
+        setEditingId(null);
+      }
+    } catch {
+      setMessage("No se pudo guardar la prenda. Revisa sus datos e inténtalo de nuevo.");
+    }
+  }
+
+  function editItem(piece: WardrobeState["items"][number]) {
+    setEditingId(piece.id);
+    setItem({ name: piece.name, category: piece.category, color: piece.color as Color,
+      season: piece.season, price: String(piece.price), notes: piece.notes });
+    const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
+    document.getElementById("wardrobe-heading")?.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "start" });
+    document.getElementById("name")?.focus({ preventScroll: true });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setItem(EMPTY_DRAFT);
+    setMessage("Edición cancelada. No se modificó el armario.");
   }
 
   function dropItem(id: string, name: string) {
     if (!window.confirm(`¿Eliminar «${name}»? Se quitará también de los conjuntos donde aparezca.`)) return;
     if (persist(removeItem(wardrobe, id), "Pieza eliminada.")) {
       setSelected(previous => previous.filter(x => x !== id));
+      if (editingId === id) cancelEdit();
     }
   }
 
@@ -132,7 +173,11 @@ export default function NataliaHome() {
       const parsed = JSON.parse(await file.text()) as unknown;
       const valid = validateWardrobe(parsed);
       if (!window.confirm("¿Sustituir todo el armario y los conjuntos locales por esta copia JSON? Exporta antes los datos que quieras conservar.")) return;
-      if (persist(valid, "Copia restaurada y comprobada.")) setSelected([]);
+      if (persist(valid, "Copia restaurada y comprobada.", true)) {
+        setSelected([]);
+        setEditingId(null);
+        setItem(EMPTY_DRAFT);
+      }
     } catch {
       setMessage("La copia JSON es inválida o tiene una versión incompatible. No se modificó el armario.");
     }
@@ -151,6 +196,19 @@ export default function NataliaHome() {
             <a href="#wardrobe">Abrir estudio ↗</a>
           </nav>
         </header>
+        {load.status === "invalid" && (
+          <div className="notice" role="alert">
+            <strong>Datos locales dañados: guardado bloqueado.</strong> No se ha borrado el original.
+            Descarga su contenido antes de restaurar una copia JSON válida.
+            {typeof raw === "string" && <button className="small-action" type="button"
+              onClick={() => downloaded(raw, "natalia-datos-originales.txt", "text/plain;charset=utf-8")}>
+              Descargar datos originales
+            </button>}
+          </div>
+        )}
+        {load.status === "unavailable" && (
+          <p className="notice" role="alert">El navegador no permite leer el armario local. No se guardarán cambios hasta recuperar el acceso.</p>
+        )}
         <main>
           <section className="hero" aria-labelledby="hero-heading">
             <div>
@@ -175,7 +233,7 @@ export default function NataliaHome() {
             <div className="heading"><div><p className="eyebrow">01 / TU UNIVERSO</p><h2 id="wardrobe-heading">Armario, no algoritmo.</h2></div><p>Construye un inventario sin subir fotografías ni aceptar recomendaciones sobre tu cuerpo. Toda la información procede de lo que decides registrar.</p></div>
             <div className="workspace">
               <form className="panel" onSubmit={createItem}>
-                <h3>Añadir una pieza</h3><p>Cada prenda tiene historia. Empieza con lo que realmente llevas.</p>
+                <h3>{editingId ? "Editar una pieza" : "Añadir una pieza"}</h3><p>{editingId ? "Actualiza su descripción sin borrar las veces que la has usado." : "Cada prenda tiene historia. Empieza con lo que realmente llevas."}</p>
                 <div className="field"><label htmlFor="name">Nombre de la prenda</label><input id="name" required minLength={2} maxLength={90} placeholder="Ej. Chaqueta negra vintage" value={item.name} onChange={e => setItem({ ...item, name: e.target.value })}/></div>
                 <div className="field-grid">
                   <div className="field"><label htmlFor="category">Categoría</label><select id="category" value={item.category} onChange={e => setItem({...item,category:e.target.value as Category})}>{Object.entries(CATEGORY_LABEL).map(([id,label])=><option key={id} value={id}>{label}</option>)}</select></div>
@@ -186,7 +244,7 @@ export default function NataliaHome() {
                   <div className="field"><label htmlFor="price">Precio de compra (€)</label><input id="price" type="number" min="0" max="1000000" step="0.01" value={item.price} placeholder="0,00" onChange={e=>setItem({...item,price:e.target.value})}/></div>
                 </div>
                 <div className="field"><label htmlFor="notes">Una nota (opcional)</label><textarea id="notes" maxLength={360} value={item.notes} onChange={e=>setItem({...item,notes:e.target.value})} placeholder="Por qué te gusta, con qué te hace sentir bien…"/></div>
-                <button className="btn primary" type="submit">Guardar prenda +</button>
+                <div className="actions"><button className="btn primary" type="submit">{editingId ? "Guardar cambios ✓" : "Guardar prenda +"}</button>{editingId && <button className="btn" type="button" onClick={cancelEdit}>Cancelar edición</button>}</div>
               </form>
               <div className="panel">
                 <div className="heading" style={{marginBottom:18}}><div><h3>Tu colección</h3><p>Tu estilo no requiere un tamaño ni una forma prescrita.</p></div>
@@ -199,7 +257,7 @@ export default function NataliaHome() {
                       <h4>{piece.name}</h4>
                       <p className="meta">{piece.color} · {SEASON_LABEL[piece.season]}<br/>{piece.wears} usos · {euro(piece.price)} invertidos</p>
                       {piece.notes && <p className="meta">{piece.notes}</p>}
-                      <div className="garment-foot"><span className="meta">{costPerWear(piece) === null ? "Coste/uso pendiente" : euro(costPerWear(piece)!)+"/uso"}</span><button className="small-action" type="button" onClick={()=>dropItem(piece.id,piece.name)} aria-label={`Eliminar ${piece.name}`}>Eliminar</button></div>
+                      <div className="garment-foot"><span className="meta">{costPerWear(piece) === null ? "Coste/uso pendiente" : euro(costPerWear(piece)!)+"/uso"}</span><div><button className="small-action" type="button" onClick={()=>editItem(piece)} aria-label={`Editar ${piece.name}`}>Editar</button><button className="small-action" type="button" onClick={()=>dropItem(piece.id,piece.name)} aria-label={`Eliminar ${piece.name}`}>Eliminar</button></div></div>
                     </article>
                   ))}</div>
                 ) : <div className="empty">{wardrobe.items.length ? "No hay prendas de esta categoría." : "Tu armario comienza vacío. Añade una pieza real y empieza a construir tu historia de estilo."}</div>}
@@ -239,7 +297,7 @@ export default function NataliaHome() {
           <section className="section privacy" id="privacy" aria-labelledby="privacy-heading">
             <div><p className="eyebrow">03 / PRIVACY BY DESIGN</p><h2 id="privacy-heading">Tu armario.<br/>Tus reglas.</h2><p>No necesitas medir tu cuerpo, fotografiarte ni revelar emociones para usar este estudio. El inventario y el historial de uso viven en este navegador; sin cookies de seguimiento, cuentas, compras o API externas. Los datos locales pueden perderse al borrar el almacenamiento: conserva una copia JSON cuando quieras.</p></div>
             <div className="panel"><h3>Tu información te pertenece.</h3><p>Exporta o restaura todas tus prendas y conjuntos mediante un archivo JSON validado. El importador solicita confirmación antes de sustituir los datos. Ningún fichero se sube a un servidor.</p>
-              <div className="actions"><button className="btn primary" type="button" onClick={()=>downloaded(JSON.stringify(wardrobe,null,2),"natalia-mi-armario.json")}>Exportar mi armario ↓</button>
+              <div className="actions"><button className="btn primary" type="button" disabled={load.status === "invalid" || load.status === "unavailable"} onClick={()=>downloaded(JSON.stringify(wardrobe,null,2),"natalia-mi-armario.json")}>Exportar mi armario ↓</button>
                 <label className="btn file-label">Restaurar copia JSON<input type="file" accept=".json,application/json" onChange={e=>{void restore(e.target.files?.[0]);e.target.value="";}}/></label></div>
               <p className="micro">El archivo exportado contiene los datos que tú hayas escrito; guárdalo en un lugar privado. Esta aplicación no certifica sostenibilidad ni estima tu salud, cuerpo o estado psicológico.</p>
             </div>
