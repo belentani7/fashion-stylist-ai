@@ -92,10 +92,23 @@ export function validateWardrobe(raw: unknown): WardrobeState {
   return { version: 1, items, outfits };
 }
 
+/** Distinguish an empty wardrobe from unreadable or corrupt stored data.
+ * Never silently overwrite the original when a load fails. */
+export const STORAGE_UNAVAILABLE = "__natalia_local_storage_read_failed__";
+export type WardrobeLoadStatus = "empty" | "ok" | "invalid" | "unavailable";
+export function inspectLocalWardrobe(raw: string | null): {
+  state: WardrobeState; status: WardrobeLoadStatus;
+} {
+  if (raw === STORAGE_UNAVAILABLE) return { state: EMPTY, status: "unavailable" };
+  if (raw === null) return { state: EMPTY, status: "empty" };
+  if (raw.length > 1_000_000) return { state: EMPTY, status: "invalid" };
+  try { return { state: validateWardrobe(JSON.parse(raw) as unknown), status: "ok" }; }
+  catch { return { state: EMPTY, status: "invalid" }; }
+}
+
+/** Backward-compatible read-only parser; writers must check inspectLocalWardrobe.status. */
 export function parseLocalWardrobe(raw: string | null): WardrobeState {
-  if (!raw || raw.length > 1_000_000) return { version: 1, items: [], outfits: [] };
-  try { return validateWardrobe(JSON.parse(raw) as unknown); }
-  catch { return { version: 1, items: [], outfits: [] }; }
+  return inspectLocalWardrobe(raw).state;
 }
 
 export function addItem(state: WardrobeState, item: WardrobeItem): WardrobeState {
