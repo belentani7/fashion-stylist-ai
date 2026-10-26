@@ -137,3 +137,27 @@ test("editor respects reduced-motion preference before moving focus", () => {
   assert.match(app, /prefers-reduced-motion: reduce/);
   assert.match(app, /behavior: reducedMotion \? "auto" : "smooth"/);
 });
+
+test("local data inspection distinguishes missing, corrupt and inaccessible storage", () => {
+  assert.equal(model.inspectLocalWardrobe(null).status, "empty");
+  const saved = JSON.stringify(model.addItem(blank(), piece("kept")));
+  const good = model.inspectLocalWardrobe(saved);
+  assert.equal(good.status, "ok");
+  assert.equal(good.state.items[0].id, "kept");
+  for (const broken of ["", "{bad json", JSON.stringify({ version: 99, items: [], outfits: [] }), "x".repeat(1_000_001)]) {
+    const result = model.inspectLocalWardrobe(broken);
+    assert.equal(result.status, "invalid");
+    assert.equal(result.state.items.length, 0);
+  }
+  assert.equal(model.inspectLocalWardrobe(model.STORAGE_UNAVAILABLE).status, "unavailable");
+});
+
+test("corrupt or stale local wardrobe cannot be overwritten by ordinary edits", () => {
+  const app = readFileSync(resolve(root, "app/page.tsx"), "utf8");
+  assert.match(app, /load\.status === "invalid" && !allowConfirmedRestore/);
+  assert.match(app, /load\.status === "unavailable"/);
+  assert.match(app, /localStorage\.getItem\(STORAGE_KEY\) !== raw/);
+  assert.match(app, /persist\(valid, "Copia restaurada y comprobada\.", true\)/);
+  assert.match(app, /Descargar datos originales/);
+  assert.match(app, /disabled=\{load\.status === "invalid" \|\| load\.status === "unavailable"\}/);
+});
