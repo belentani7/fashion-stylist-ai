@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useSyncExternalStore, type FormEvent, type CSSProperties } from "react";
 import {
-  STORAGE_KEY, STORAGE_EVENT, STORAGE_UNAVAILABLE, EMPTY,
+  STORAGE_KEY, STORAGE_EVENT, STORAGE_UNAVAILABLE,
   addItem, updateItem, addOutfit, removeItem, removeOutfit, wearOutfit,
   totalInvestment, costPerWear, inspectLocalWardrobe,
   validateWardrobe, suggestOutfit,
