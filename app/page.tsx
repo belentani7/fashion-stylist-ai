@@ -2,9 +2,9 @@
 
 import { useMemo, useState, useSyncExternalStore, type FormEvent, type CSSProperties } from "react";
 import {
-  STORAGE_KEY, STORAGE_EVENT, EMPTY,
+  STORAGE_KEY, STORAGE_EVENT, STORAGE_UNAVAILABLE, EMPTY,
   addItem, updateItem, addOutfit, removeItem, removeOutfit, wearOutfit,
-  totalInvestment, costPerWear, parseLocalWardrobe,
+  totalInvestment, costPerWear, inspectLocalWardrobe,
   validateWardrobe, suggestOutfit,
   type WardrobeState, type Category, type Season, type Occasion,
 } from "@/lib/wardrobe";
@@ -32,22 +32,23 @@ function subscribe(notify: () => void) {
     window.removeEventListener(STORAGE_EVENT, notify);
   };
 }
-function snapshot() {
-  try { return localStorage.getItem(STORAGE_KEY) ?? JSON.stringify(EMPTY); }
-  catch { return JSON.stringify(EMPTY); }
+function snapshot(): string | null {
+  try { return localStorage.getItem(STORAGE_KEY); }
+  catch { return STORAGE_UNAVAILABLE; }
 }
 function euro(value: number) {
   return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(value);
 }
-function downloaded(contents: string, filename: string) {
-  const url = URL.createObjectURL(new Blob([contents], { type: "application/json;charset=utf-8" }));
+function downloaded(contents: string, filename: string, mime = "application/json;charset=utf-8") {
+  const url = URL.createObjectURL(new Blob([contents], { type: mime }));
   const link = document.createElement("a"); link.href = url; link.download = filename; link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export default function NataliaHome() {
-  const raw = useSyncExternalStore(subscribe, snapshot, () => JSON.stringify(EMPTY));
-  const wardrobe = useMemo(() => parseLocalWardrobe(raw), [raw]);
+  const raw = useSyncExternalStore(subscribe, snapshot, () => null);
+  const load = useMemo(() => inspectLocalWardrobe(raw), [raw]);
+  const wardrobe = load.state;
   const [item, setItem] = useState<ItemDraft>(EMPTY_DRAFT);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [filter, setFilter] = useState("all");
@@ -60,8 +61,23 @@ export default function NataliaHome() {
   const listed = wardrobe.items.filter(x => filter === "all" || x.category === filter);
   const unused = wardrobe.items.filter(x => x.wears === 0).length;
 
-  function persist(next: WardrobeState, confirmation: string) {
+  function persist(next: WardrobeState, confirmation: string, allowConfirmedRestore = false) {
+    if (load.status === "invalid" && !allowConfirmedRestore) {
+      setMessage("Guardado detenido: hay datos locales dañados. Descarga el original o restaura una copia válida.");
+      return false;
+    }
+    if (load.status === "unavailable") {
+      setStorageError(true);
+      setMessage("No se puede leer el almacenamiento local. No se ha sobrescrito ningún dato.");
+      return false;
+    }
     try {
+      // A second tab may have changed the wardrobe since this component rendered.
+      // Refuse stale writes instead of overwriting those changes.
+      if (localStorage.getItem(STORAGE_KEY) !== raw) {
+        setMessage("El armario ha cambiado en otra pestaña. Revisa los datos antes de guardar de nuevo.");
+        return false;
+      }
       const valid = validateWardrobe(next);
       localStorage.setItem(STORAGE_KEY, JSON.stringify(valid));
       window.dispatchEvent(new Event(STORAGE_EVENT));
@@ -157,7 +173,11 @@ export default function NataliaHome() {
       const parsed = JSON.parse(await file.text()) as unknown;
       const valid = validateWardrobe(parsed);
       if (!window.confirm("¿Sustituir todo el armario y los conjuntos locales por esta copia JSON? Exporta antes los datos que quieras conservar.")) return;
-      if (persist(valid, "Copia restaurada y comprobada.")) setSelected([]);
+      if (persist(valid, "Copia restaurada y comprobada.", true)) {
+        setSelected([]);
+        setEditingId(null);
+        setItem(EMPTY_DRAFT);
+      }
     } catch {
       setMessage("La copia JSON es inválida o tiene una versión incompatible. No se modificó el armario.");
     }
@@ -176,6 +196,19 @@ export default function NataliaHome() {
             <a href="#wardrobe">Abrir estudio ↗</a>
           </nav>
         </header>
+        {load.status === "invalid" && (
+          <div className="notice" role="alert">
+            <strong>Datos locales dañados: guardado bloqueado.</strong> No se ha borrado el original.
+            Descarga su contenido antes de restaurar una copia JSON válida.
+            {raw !== null && <button className="small-action" type="button"
+              onClick={() => downloaded(raw, "natalia-datos-originales.txt", "text/plain;charset=utf-8")}>
+              Descargar datos originales
+            </button>}
+          </div>
+        )}
+        {load.status === "unavailable" && (
+          <p className="notice" role="alert">El navegador no permite leer el armario local. No se guardarán cambios hasta recuperar el acceso.</p>
+        )}
         <main>
           <section className="hero" aria-labelledby="hero-heading">
             <div>
@@ -264,7 +297,7 @@ export default function NataliaHome() {
           <section className="section privacy" id="privacy" aria-labelledby="privacy-heading">
             <div><p className="eyebrow">03 / PRIVACY BY DESIGN</p><h2 id="privacy-heading">Tu armario.<br/>Tus reglas.</h2><p>No necesitas medir tu cuerpo, fotografiarte ni revelar emociones para usar este estudio. El inventario y el historial de uso viven en este navegador; sin cookies de seguimiento, cuentas, compras o API externas. Los datos locales pueden perderse al borrar el almacenamiento: conserva una copia JSON cuando quieras.</p></div>
             <div className="panel"><h3>Tu información te pertenece.</h3><p>Exporta o restaura todas tus prendas y conjuntos mediante un archivo JSON validado. El importador solicita confirmación antes de sustituir los datos. Ningún fichero se sube a un servidor.</p>
-              <div className="actions"><button className="btn primary" type="button" onClick={()=>downloaded(JSON.stringify(wardrobe,null,2),"natalia-mi-armario.json")}>Exportar mi armario ↓</button>
+              <div className="actions"><button className="btn primary" type="button" disabled={load.status === "invalid" || load.status === "unavailable"} onClick={()=>downloaded(JSON.stringify(wardrobe,null,2),"natalia-mi-armario.json")}>Exportar mi armario ↓</button>
                 <label className="btn file-label">Restaurar copia JSON<input type="file" accept=".json,application/json" onChange={e=>{void restore(e.target.files?.[0]);e.target.value="";}}/></label></div>
               <p className="micro">El archivo exportado contiene los datos que tú hayas escrito; guárdalo en un lugar privado. Esta aplicación no certifica sostenibilidad ni estima tu salud, cuerpo o estado psicológico.</p>
             </div>
