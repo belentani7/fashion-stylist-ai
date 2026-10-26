@@ -150,6 +150,9 @@ test("local data inspection distinguishes missing, corrupt and inaccessible stor
     assert.equal(result.state.items.length, 0);
   }
   assert.equal(model.inspectLocalWardrobe(model.STORAGE_UNAVAILABLE).status, "unavailable");
+  // A stored string must never impersonate an inaccessible browser storage API.
+  assert.equal(typeof model.STORAGE_UNAVAILABLE, "symbol");
+  assert.equal(model.inspectLocalWardrobe("__natalia_local_storage_read_failed__").status, "invalid");
 });
 
 test("corrupt or stale local wardrobe cannot be overwritten by ordinary edits", () => {

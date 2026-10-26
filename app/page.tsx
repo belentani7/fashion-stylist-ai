@@ -32,7 +32,7 @@ function subscribe(notify: () => void) {
     window.removeEventListener(STORAGE_EVENT, notify);
   };
 }
-function snapshot(): string | null {
+function snapshot(): string | null | typeof STORAGE_UNAVAILABLE {
   try { return localStorage.getItem(STORAGE_KEY); }
   catch { return STORAGE_UNAVAILABLE; }
 }
@@ -200,7 +200,7 @@ export default function NataliaHome() {
           <div className="notice" role="alert">
             <strong>Datos locales dañados: guardado bloqueado.</strong> No se ha borrado el original.
             Descarga su contenido antes de restaurar una copia JSON válida.
-            {raw !== null && <button className="small-action" type="button"
+            {typeof raw === "string" && <button className="small-action" type="button"
               onClick={() => downloaded(raw, "natalia-datos-originales.txt", "text/plain;charset=utf-8")}>
               Descargar datos originales
             </button>}

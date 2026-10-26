@@ -94,9 +94,9 @@ export function validateWardrobe(raw: unknown): WardrobeState {
 
 /** Distinguish an empty wardrobe from unreadable or corrupt stored data.
  * Never silently overwrite the original when a load fails. */
-export const STORAGE_UNAVAILABLE = "__natalia_local_storage_read_failed__";
+export const STORAGE_UNAVAILABLE = Symbol("natalia:storage-unavailable");
 export type WardrobeLoadStatus = "empty" | "ok" | "invalid" | "unavailable";
-export function inspectLocalWardrobe(raw: string | null): {
+export function inspectLocalWardrobe(raw: string | null | typeof STORAGE_UNAVAILABLE): {
   state: WardrobeState; status: WardrobeLoadStatus;
 } {
   if (raw === STORAGE_UNAVAILABLE) return { state: EMPTY, status: "unavailable" };
